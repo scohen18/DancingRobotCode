@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%;">
+<head>
+    <script src="./public/phaser.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Bangers" rel="stylesheet">
+</head>
+<body style="width: 100%; height: 100%; font-family: 'Bangers', cursive;">
+
+    <h1 style="text-align: center; font-size: 50pt;">Fitz the Dancing Robot</h1>
+    <h3 style="text-align: center; font-size: 20pt;">Move the limbs on fitz to see them move in real life!</h3>
+
+    <script>
+
+        const toDegs = 180/3.1415926535;
+
+        var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+        function preload() {
+            game.scale.pageAlignHorizontally = true;
+            game.scale.pageAlignVertically = true;
+            game.load.spritesheet('balls', 'assets/sprites/balls.png', 17, 17);
+            game.load.spritesheet('arms', './public/arm.png', 182, 712);
+            game.load.spritesheet('legs', './public/leg.png', 181, 653);
+            game.load.spritesheet('torso', './public/body_head.png', 654, 1685);
+            game.load.image('background', './public/cardboard-texture.png');
+
+        }
+
+        var leftHand;
+        var rightHand;
+
+        var leftFoot;
+        var rightFoot;
+
+        var leftHandToTorso;
+        var rightHandToTorso;
+        var torso;
+        var leftHandToTorsoBottom;
+        var rightHandToTorsoBottom;
+
+
+        var leftHandValue = 90;
+        var rightHandValue = 90;
+        var leftFootValue = 90;
+        var rightFootValue = 90;
+
+        function create() {
+
+            game.stage.backgroundColor = '#FFFFFF';
+            game.add.tileSprite(0, 0, 1000, 600, 'background');
+            torsoImage = game.add.sprite(400, 220, 'torso', 0);
+            torsoImage.anchor.set(0.5);
+            torsoImage.inputEnabled = true;
+            torsoImage.scale.setTo(0.2,0.2);
+
+            leftHandImage = game.add.sprite(320, 195, 'arms', 0);
+            leftHandImage.anchor.set(0.5, 0);
+            leftHandImage.inputEnabled = true;
+            leftHandImage.scale.setTo(0.2,0.2);
+
+            rightHandImage = game.add.sprite(480, 195, 'arms', 0);
+            rightHandImage.anchor.set(0.5, 0);
+            rightHandImage.inputEnabled = true;
+            rightHandImage.scale.setTo(0.2,0.2);
+
+            leftFootImage = game.add.sprite(360, 400, 'legs', 0);
+            leftFootImage.anchor.set(0.5, 0);
+            leftFootImage.inputEnabled = true;
+            leftFootImage.scale.setTo(0.2,0.2);
+
+            rightFootImage = game.add.sprite(440, 400, 'legs', 0);
+            rightFootImage.anchor.set(0.5, 0);
+            rightFootImage.inputEnabled = true;
+            rightFootImage.scale.setTo(0.2,0.2);
+
+            leftHand = game.add.sprite(100, 400, 'balls', 0);
+            leftHand.anchor.set(0.5);
+            leftHand.inputEnabled = true;
+            leftHand.input.enableDrag(true);
+            leftHand.events.onInputUp.add(onUp, this);
+
+            rightHand = game.add.sprite(700, 400, 'balls', 0);
+            rightHand.anchor.set(0.5);
+            rightHand.inputEnabled = true;
+            rightHand.input.enableDrag(true);
+            rightHand.events.onInputUp.add(onUp, this);
+
+            leftFoot = game.add.sprite(140, 500, 'balls', 0);
+            leftFoot.anchor.set(0.5);
+            leftFoot.inputEnabled = true;
+            leftFoot.input.enableDrag(true);
+            leftFoot.events.onInputUp.add(onUp, this);
+
+            rightFoot = game.add.sprite(660, 500, 'balls', 0);
+            rightFoot.anchor.set(0.5);
+            rightFoot.inputEnabled = true;
+            rightFoot.input.enableDrag(true);
+            rightFoot.events.onInputUp.add(onUp, this);
+
+            topNode = game.add.sprite(250, 200, 'balls', 0);
+            topNode.anchor.set(0.5);
+            topNode.inputEnabled = true;
+            topNode.alpha = 0;
+
+            bottomNode = game.add.sprite(250, 400, 'balls', 0);
+            bottomNode.anchor.set(0.5);
+            bottomNode.inputEnabled = true;
+            bottomNode.alpha = 0;
+
+
+            leftHandToTorso = new Phaser.Line(leftHand.x, leftHand.y, topNode.x, topNode.y);
+            rightHandToTorso = new Phaser.Line(rightHand.x, rightHand.y, topNode.x, topNode.y);
+            torso = new Phaser.Line(topNode.x, topNode.y, bottomNode.x, bottomNode.y);
+            leftHandToTorsoBottom = new Phaser.Line(leftFoot.x, leftFoot.y, bottomNode.x, bottomNode.y);
+            rightHandToTorsoBottom = new Phaser.Line(rightFoot.x, rightFoot.y, bottomNode.x, bottomNode.y);
+
+        }
+
+        function update() {
+
+            leftHandToTorso.fromSprite(leftHand, topNode, false);
+            rightHandToTorso.fromSprite(rightHand, topNode, false);
+            torso.fromSprite(topNode, bottomNode, false);
+            leftHandToTorsoBottom.fromSprite(leftFoot, bottomNode, false);
+            rightHandToTorsoBottom.fromSprite(rightFoot, bottomNode, false);
+
+            leftHandImage.rotation = game.physics.arcade.angleBetween(leftHandImage, leftHand) - (3.1415926535 / 2);
+            rightHandImage.rotation = game.physics.arcade.angleBetween(rightHandImage, rightHand) - (3.1415926535 / 2);
+            leftFootImage.rotation = game.physics.arcade.angleBetween(leftFootImage, leftFoot) - (3.1415926535 / 2);
+            rightFootImage.rotation = game.physics.arcade.angleBetween(rightFootImage, rightFoot) - (3.1415926535 / 2);
+        
+        }
+
+        function render() {
+
+            leftHandValue = Math.abs(leftHandToTorso.normalAngle * toDegs)
+            rightHandValue =  (rightHandToTorso.normalAngle * toDegs)
+            leftFootValue =  Math.abs(leftHandToTorsoBottom.normalAngle * toDegs) - 40
+            rightFootValue =  (rightHandToTorsoBottom.normalAngle * toDegs) - 30
+        }
+
+        function onUp() {
+            $.post( "http://52.3.224.163/setServoPositions", {leftArm: leftHandValue, rightArm: rightHandValue, leftLeg: leftFootValue, rightLeg: rightFootValue}, function( data ) {
+                console.log("request sent")
+            });
+        }
+    </script>
+
+</body>
+</html>
